@@ -62,6 +62,41 @@ class BatteryController {
         return $smartlocks;
     }
 
+    // Add dummy data for testing purposes
+    public function test()
+    {
+        // 1) Fetch your real devices from the API
+        $devices = $this->getSmartlockData();
+
+        // 2) Immediately append three dummy rows
+        $devices[] = [
+            'name'   => 'Dummy-Opener-A',
+            'status' => 'Normal',
+            'charge' => '90%',
+            'type'   => 'Accumulator'
+        ];
+        $devices[] = [
+            'name'   => 'Dummy-Opener-B',
+            'status' => 'Critical',
+            'charge' => '50%',
+            'type'   => 'Alkaline'
+        ];
+        $devices[] = [
+            'name'   => 'Dummy-Opener-C',
+            'status' => 'Normal',
+            'charge' => '5%',
+            'type'   => 'Alkaline'
+        ];
+        $devices[] = [
+            'name'   => 'Dummy-Opener-D',
+            'status' => 'Critical',
+            'charge' => '15%',
+            'type'   => 'Li-Ion'
+        ];
+
+        return $devices; // Return the devices including the dummy data
+    }
+
 }
 
 // Example usage:

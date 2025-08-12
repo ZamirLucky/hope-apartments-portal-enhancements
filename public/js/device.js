@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchButton     = document.getElementById("searchButton");
     const sortButton       = document.getElementById("sortButton");
     const paginationControls = document.getElementById("paginationControls");
+    
 
     // Original data or empty
     let originalData  = Array.isArray(deviceData) ? deviceData : [];
