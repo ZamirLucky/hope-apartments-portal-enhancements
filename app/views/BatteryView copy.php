@@ -18,8 +18,7 @@ if (!$loginController->isLoggedIn()) {
 }
 
 $batteryController = new BatteryController();
-$smartlocks = $batteryController->test();
-
+$smartlocks = $batteryController->getSortedSmartlockData();
 
 // Get search term from query parameters
 $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
@@ -93,14 +92,15 @@ $batteryTypeMapping = [
                         <button class="btn btn-secondary ms-2" id="sortButtonByPerc" type="button">
                             <i class="fas fa-sort-numeric-down"></i> Sort %
                         </button>
-                    </div>                  
-                </div>    
+                    </div> 
+                </div>
                 <?php if (isset($smartlocks['error'])): ?>
                     <div class="alert alert-danger text-center">
                         <?= htmlspecialchars($smartlocks['error']); ?>
                     </div>
                 <?php else: ?>
                     <?php if (count($smartlocksPage) > 0): ?>
+                        <!-- Battery table -->
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered align-middle">
                                 <thead class="table-dark">
@@ -112,20 +112,39 @@ $batteryTypeMapping = [
                                     </tr>
                                 </thead>
                                 <tbody id="smartlockTableBody">
-                                    <?php foreach ($smartlocks as $d): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($d['name']) ?></td>
-                                            <td><?= htmlspecialchars($d['status']  ?? 'Not available') ?></td>
-                                            <td><?= htmlspecialchars($d['charge']  ?? 'Not available') ?></td>
-                                            <td><?= htmlspecialchars($d['type']    ?? 'Not available') ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>             
+                                        <?php foreach ($smartlocksPage as $smartlock): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($smartlock['name']) ?></td>
+                                                <td>
+                                                    <?php if (isset($smartlock['state']['batteryCritical']) && $smartlock['state']['batteryCritical']): ?>
+                                                        <span class="badge bg-danger">Critical</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-success">Normal</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <?= isset($smartlock['state']['batteryCharge']) 
+                                                        ? htmlspecialchars($smartlock['state']['batteryCharge']) . '%' 
+                                                        : 'Not available'; ?>
+                                                </td>
+                                                <td>
+                                                    <?php 
+                                                    if (isset($smartlock['advancedConfig']['batteryType'])) {
+                                                        $bt = $smartlock['advancedConfig']['batteryType'];
+                                                        echo isset($batteryTypeMapping[$bt]) ? $batteryTypeMapping[$bt] : 'Unknown';
+                                                    } else {
+                                                        echo 'Not available';
+                                                    }
+                                                    ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
                         <!-- Pagination Controls -->
                         <div id="paginationControls" class="mt-3"></div>
-                                   
+
                     <?php else: ?>
                         <div class="alert alert-info text-center">
                             No smartlocks found.
@@ -135,9 +154,11 @@ $batteryTypeMapping = [
             </div>
         </div>
     </div>
+    <!-- Pass PHP data to JavaScript -->
+    <script>
+        const batteryData = <?= json_encode($smartlocks) ?>;
+    </script>
+
     <script src="../../public/js/battery.js"></script>
 </body>
 </html>
-
-
-

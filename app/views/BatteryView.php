@@ -22,9 +22,7 @@ $smartlocks = $batteryController->getSortedSmartlockData();
 
 // Get search term from query parameters
 $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$perPage = 25;
-$start = ($page - 1) * $perPage;
+
 
 // Filter smartlocks if search term is provided
 if (!empty($searchTerm)) {
@@ -49,14 +47,14 @@ if (!empty($searchTerm)) {
 }
 
 $totalSmartlocks = count($smartlocks);
-$smartlocksPage = array_slice($smartlocks, $start, $perPage);
+
 
 // Define mapping for battery type values (for display)
-$batteryTypeMapping = [
-    0 => 'Alkali',
-    1 => 'Accumulator',
-    2 => 'Lithium'
-];
+// $batteryTypeMapping = [
+//     0 => 'Alkali',
+//     1 => 'Accumulator',
+//     2 => 'Lithium'
+// ];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,7 +97,7 @@ $batteryTypeMapping = [
                         <?= htmlspecialchars($smartlocks['error']); ?>
                     </div>
                 <?php else: ?>
-                    <?php if (count($smartlocksPage) > 0): ?>
+                    <?php if ($totalSmartlocks > 0): ?>
                         <!-- Battery table -->
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered align-middle">
@@ -112,33 +110,7 @@ $batteryTypeMapping = [
                                     </tr>
                                 </thead>
                                 <tbody id="smartlockTableBody">
-                                        <?php foreach ($smartlocksPage as $smartlock): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($smartlock['name']) ?></td>
-                                                <td>
-                                                    <?php if (isset($smartlock['state']['batteryCritical']) && $smartlock['state']['batteryCritical']): ?>
-                                                        <span class="badge bg-danger">Critical</span>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-success">Normal</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <?= isset($smartlock['state']['batteryCharge']) 
-                                                        ? htmlspecialchars($smartlock['state']['batteryCharge']) . '%' 
-                                                        : 'Not available'; ?>
-                                                </td>
-                                                <td>
-                                                    <?php 
-                                                    if (isset($smartlock['advancedConfig']['batteryType'])) {
-                                                        $bt = $smartlock['advancedConfig']['batteryType'];
-                                                        echo isset($batteryTypeMapping[$bt]) ? $batteryTypeMapping[$bt] : 'Unknown';
-                                                    } else {
-                                                        echo 'Not available';
-                                                    }
-                                                    ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                    <!-- battery.js will render rows -->
                                 </tbody>
                             </table>
                         </div>
@@ -156,7 +128,8 @@ $batteryTypeMapping = [
     </div>
     <!-- Pass PHP data to JavaScript -->
     <script>
-        const batteryData = <?= json_encode($smartlocks) ?>;
+        //const batteryData = <?= json_encode($smartlocks) ?>;
+        const batteryData = <?= json_encode(array_values($smartlocks)) ?>;
     </script>
 
     <script src="../../public/js/battery.js"></script>

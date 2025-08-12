@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initial load
     if (originalBatteryData.length > 0) {
-        console.log("Battery data loaded:", originalBatteryData);
+        
         sortData(filteredData);
         renderTable(filteredData, currentPage);
     } 
