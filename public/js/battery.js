@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sortButtonByPerc  = document.getElementById("sortButtonByPerc");
     const paginationControls = document.getElementById("paginationControls");
 
+
     let originalBatteryData = Array.isArray(batteryData) ? batteryData : [];
     let filteredData = [...originalBatteryData];
     let currentPage = 1;

@@ -49,12 +49,20 @@ if (!empty($searchTerm)) {
 $totalSmartlocks = count($smartlocks);
 
 
-// Define mapping for battery type values (for display)
-// $batteryTypeMapping = [
-//     0 => 'Alkali',
-//     1 => 'Accumulator',
-//     2 => 'Lithium'
-// ];
+// Sort by status if set
+if (isset($_GET['status']) && in_array($_GET['status'], ['normal', 'critical'])) {
+    $status = $_GET['status'];
+    usort($smartlocks, function ($a, $b) use ($status) {
+        $aCritical = isset($a['state']['batteryCritical']) && $a['state']['batteryCritical'];
+        $bCritical = isset($b['state']['batteryCritical']) && $b['state']['batteryCritical'];
+        if ($status === 'critical') {
+            return $bCritical <=> $aCritical;
+        } else {
+            return $aCritical <=> $bCritical;
+        }
+    });
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,11 +93,39 @@ $totalSmartlocks = count($smartlocks);
                             </button>
                         </form>
                     </div>
-                    <!-- Sort by percentages -->
-                    <div class="col-md-6 text-end">
-                        <button class="btn btn-secondary ms-2" id="sortButtonByPerc" type="button">
+                    <!-- Sort controls -->
+                    <div class="col-md-6 d-flex">
+                        <!-- Percentage sort -->
+                        <button class="btn btn-primary ms-2" id="sortButtonByPerc" type="button">
                             <i class="fas fa-sort-numeric-down"></i> Sort %
                         </button>
+
+                        <!-- Status dropdown sort -->
+                        <div class="btn-group ms-1" role="group">
+                            <button class="btn btn-primary dropdown-toggle" 
+                                id="sortStatusDropdown" 
+                                type="button" 
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false"
+                            >
+
+                                <span id="sortStatusLabel"
+                                    <?php if (isset($_GET['status']) && $_GET['status'] === 'critical'):
+                                    echo 'class="text-danger"'; ?>
+                                    <?php endif; ?>>
+                                    
+                                    <?= isset($_GET['status']) && in_array($_GET['status'], ['normal', 'critical']) 
+                                        ? ucfirst($_GET['status']) 
+                                        : 'Sort by status' ?>
+                                </span>
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="sortStatusDropdown">
+                                <li><a class="dropdown-item" href="?<?= http_build_query(array_merge($_GET, ['status' => 'normal'])) ?>">Normal</a></li>
+                                <li><a class="dropdown-item text-danger" href="?<?= http_build_query(array_merge($_GET, ['status' => 'critical'])) ?>">Critical</a></li>
+                                <li><a class="dropdown-item" href="?<?= http_build_query(array_diff_key($_GET, ['status' => ''])) ?>">Clear</a></li>
+                            </ul>
+                        </div>
                     </div> 
                 </div>
                 <?php if (isset($smartlocks['error'])): ?>
@@ -133,5 +169,6 @@ $totalSmartlocks = count($smartlocks);
     </script>
 
     <script src="../../public/js/battery.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
