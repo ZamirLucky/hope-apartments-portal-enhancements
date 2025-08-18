@@ -59,7 +59,7 @@ foreach ($smartLockDevices as $device) {
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tableBody">
                 <?php if (!empty($smartLockAuths)): ?>
                     <?php foreach ($smartLockAuths as $auth): ?>
                         <tr id="row-<?= htmlspecialchars($auth['authId'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -87,6 +87,8 @@ foreach ($smartLockDevices as $device) {
             </tbody>
         </table>
     </div>
+    <!-- Pagination Controls -->
+    <div id="paginationControls" class="mt-3 d-flex justify-content-center align-items-center"></div>
 </body>
 
 </html>
@@ -138,4 +140,54 @@ foreach ($smartLockDevices as $device) {
             });
         });
     });
+
+
+    // Pagination logic
+    (function () {
+        const smartlockAuthPerPage = 25;
+        const tableBody   = document.getElementById('tableBody');
+        const rows    = Array.from(tableBody.querySelectorAll('tr'));
+        const paginationControls   = document.getElementById('paginationControls');
+
+        if (!rows.length) { paginationControls.innerHTML = ''; return; }
+
+        let page = 1;
+        const totalPages = Math.ceil(rows.length / smartlockAuthPerPage);
+
+        function show(p) {
+            page = Math.min(Math.max(1, p), totalPages);
+            rows.forEach((tr, i) => {
+            const inPage = i >= (page - 1) * smartlockAuthPerPage && i < page * smartlockAuthPerPage;
+            tr.style.display = inPage ? '' : 'none';
+            });
+            renderpaginationControls();
+        }
+
+        function renderpaginationControls() {
+            paginationControls.innerHTML = '';
+
+            // Show page info
+            const pageInfo = document.createElement("span");
+            pageInfo.classList.add("me-3");
+            pageInfo.textContent = `Page ${page} of ${totalPages}`;
+
+            paginationControls.appendChild(pageInfo);
+
+            const prev = document.createElement('button');
+            prev.textContent = 'Previous';
+            prev.className = 'btn btn-primary me-2';
+            prev.disabled = page === 1;
+            prev.onclick = () => show(page - 1);
+
+            const next = document.createElement('button');
+            next.textContent = 'Next';
+            next.className = 'btn btn-primary';
+            next.disabled = page === totalPages;
+            next.onclick = () => show(page + 1);
+
+            paginationControls.append(prev, next);
+        }
+
+        show(1);
+    })();
 </script>

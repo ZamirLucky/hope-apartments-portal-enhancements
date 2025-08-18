@@ -164,7 +164,7 @@ if (isset($_GET['status']) && in_array($_GET['status'], ['normal', 'critical']))
     </div>
     <!-- Pass PHP data to JavaScript -->
     <script>
-        //const batteryData = <?= json_encode($smartlocks) ?>;
+        
         const batteryData = <?= json_encode(array_values($smartlocks)) ?>;
     </script>
 
